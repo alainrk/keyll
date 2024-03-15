@@ -8,15 +8,26 @@ const CHARSET_SPECIAL = `!@#$%^&*()_+~-=\`{}[]|:;'"<>,.?/\\`;
 
 // CharsQueue just stores a fixed amount of typed characters
 class CharsQueue {
-  constructor(maxLength = 45) {
+  constructor(maxLength = 10) {
     this.queue = [];
     this.maxLength = maxLength;
   }
 
+  updateCurrent(hit) {
+    if (this.queue.length > 0) {
+      this.queue[this.queue.length - 1].hit = hit;
+    }
+  }
+
   addChar(char, hit) {
+    if (this.queue.length > 0) {
+      this.queue[this.queue.length - 1].current = false;
+    }
+
     this.queue.push({
       char,
-      hit
+      hit,
+      current: true
     });
 
     if (this.queue.length > this.maxLength) {
@@ -29,6 +40,10 @@ class CharsQueue {
   getString() {
     return this.queue.map((char) => char.char).join("");
   }
+
+  getLastChar() {
+    return this.queue[this.queue.length - 1].char;
+  }
 }
 
 class Game {
@@ -36,7 +51,6 @@ class Game {
     // TODO: Add a proper options object param
     this.score = 0;
     this.timeout = 5;
-    this.currentChar = "";
     this.missedChar = false;
     this.expire = 0;
     this.enableLowerCase = true;
@@ -45,21 +59,26 @@ class Game {
     this.enableSpecial = false;
     this.availableChars = this.createAvailableChars();
     this.charset = new Set(this.availableChars.split(''));
-    this.charsQueue = new CharsQueue();
+    this.typedCharsQueue = new CharsQueue(45);
+    this.promptedCharsQueue = new CharsQueue(10);
 
     this.updateChar();
     this.resetTimeout();
   }
 
+  get currentChar() {
+    return this.promptedCharsQueue.getLastChar();
+  }
+
   updateChar() {
-    this.currentChar = this.getRandomCharFromCharSet();
+    this.promptedCharsQueue.addChar(this.getRandomCharFromCharSet(), false);
   }
 
   resetTimeout() {
     this.expire = Date.now() + this.timeout * 1000;
   }
 
-  pushChar(char) {
+  addTypedChar(char) {
     // TODO: Should we include the non-allowed chars for the session in the skip/print?
     if (!this.charset.has(char)) {
       return;
@@ -69,12 +88,12 @@ class Game {
       this.missedChar = false;
       this.updateChar();
       this.resetTimeout();
-      this.charsQueue.addChar(char, true);
+      this.typedCharsQueue.addChar(char, true);
       return
     }
 
     this.missedChar = true;
-    this.charsQueue.addChar(char, false);
+    this.typedCharsQueue.addChar(char, false);
   }
 
 
@@ -99,6 +118,21 @@ class Game {
     return this.availableChars[Math.floor(Math.random() * this.availableChars.length)];
   }
 }
+
+// Draw text with different colors
+function drawMulticolorText(x, y, textChunks) {
+  var posx = x;
+  for (let i = 0; i < textChunks.length; ++ i) {
+      const chunk = textChunks[i];
+      const t = chunk[0];
+      const color = chunk[1];
+      const w = textWidth(t);
+      fill(color);
+      text(t, posx, y);
+      posx += w;
+  }
+}
+
 
 /*******************************************
  * P5 functions
@@ -141,10 +175,10 @@ function draw() {
   text(game.currentChar, width / 2 - textWidth(game.currentChar) / 2, height / 2 + textWidth(game.currentChar) / 3);
   textStyle(NORMAL);
 
-  // Write the charsQueue at the bottom
+  // Write the typedCharsQueue at the bottom
   textSize(25);
   const textChunks = []
-  for (const chunk of game.charsQueue.queue) {
+  for (const chunk of game.typedCharsQueue.queue) {
       const color = chunk.hit ? [0, 200, 0] : [200, 0, 0];
       textChunks.push([chunk.char, color]);
   }
@@ -153,19 +187,6 @@ function draw() {
 }
 
 function keyPressed() {
-  game.pushChar(key);
+  game.addTypedChar(key);
 }
 
-// Draw text with different colors
-function drawMulticolorText(x, y, textChunks) {
-  var posx = x;
-  for (let i = 0; i < textChunks.length; ++ i) {
-      const chunk = textChunks[i];
-      const t = chunk[0];
-      const color = chunk[1];
-      const w = textWidth(t);
-      fill(color);
-      text(t, posx, y);
-      posx += w;
-  }
-}
