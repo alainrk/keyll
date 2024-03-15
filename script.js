@@ -6,6 +6,31 @@ const CHARSET_UPPERCASE = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
 const CHARSET_NUMBERS = `0123456789`;
 const CHARSET_SPECIAL = `!@#$%^&*()_+~-=\`{}[]|:;'"<>,.?/\\`;
 
+// CharsQueue just stores a fixed amount of typed characters
+class CharsQueue {
+  constructor(maxLength = 70) {
+    this.queue = [];
+    this.maxLength = maxLength;
+  }
+
+  addChar(char, hit) {
+    this.queue.push({
+      char,
+      hit
+    });
+
+    if (this.queue.length > this.maxLength) {
+      this.queue.shift();
+    }
+
+    console.log(this.queue.length, this.queue);
+  }
+
+  getString() {
+    return this.queue.map((char) => char.char).join("");
+  }
+}
+
 class Game {
   constructor() {
     // TODO: Add a proper options object param
@@ -18,7 +43,9 @@ class Game {
     this.enableUpperCase = false;
     this.enableNumbers = false;
     this.enableSpecial = false;
-    this.charSet = this.createCharSet();
+    this.availableChars = this.createAvailableChars();
+    this.charset = new Set(this.availableChars.split(''));
+    this.charsQueue = new CharsQueue();
 
     this.updateChar();
     this.resetTimeout();
@@ -32,36 +59,44 @@ class Game {
     this.expire = Date.now() + this.timeout * 1000;
   }
 
-  hitChar() {
-    this.score++;
-    this.missedChar = false;
-    this.updateChar();
-    this.resetTimeout();
-  }
+  pushChar(char) {
+    // TODO: Should we include the non-allowed chars for the session in the skip/print?
+    if (!this.charset.has(char)) {
+      return;
+    }
+    if (key === game.currentChar) {
+      this.score++;
+      this.missedChar = false;
+      this.updateChar();
+      this.resetTimeout();
+      this.charsQueue.addChar(char, true);
+      return
+    }
 
-  missChar() {
     this.missedChar = true;
+    this.charsQueue.addChar(char, false);
   }
 
-  createCharSet() {
-    let charSet = "";
+
+  createAvailableChars() {
+    let availableChars = "";
     if (this.enableLowerCase) {
-      charSet += CHARSET_LOWERCASE;
+      availableChars += CHARSET_LOWERCASE;
     }
     if (this.enableUpperCase) {
-      charSet += CHARSET_UPPERCASE;
+      availableChars += CHARSET_UPPERCASE;
     }
     if (this.enableNumbers) {
-      charSet += CHARSET_NUMBERS;
+      availableChars += CHARSET_NUMBERS;
     }
     if (this.enableSpecial) {
-      charSet += CHARSET_SPECIAL;
+      availableChars += CHARSET_SPECIAL;
     }
-    return charSet;
+    return availableChars;
   }
 
   getRandomCharFromCharSet() {
-    return this.charSet[Math.floor(Math.random() * this.charSet.length)];
+    return this.availableChars[Math.floor(Math.random() * this.availableChars.length)];
   }
 }
 
@@ -70,7 +105,9 @@ class Game {
  ******************************************/
 
 function setup() {
-  createCanvas(720, 400);
+  // Create the canvas under the class #game in the HTML
+  const canvas = createCanvas(720, 400);
+  canvas.parent("canvas-game");
   noStroke();
   background(0);
   // Reduce framerate
@@ -92,21 +129,39 @@ function draw() {
   if (game.missedChar) {
     fill(255, 0, 0);
   } else {
-    fill(150, 50, 255);
+    fill(50, 50, 255);
   }
 
   textSize(100);
 
   // Write the letter in the middle of the rect
   text(game.currentChar, width / 2, height / 2);
+
+  // Write the charsQueue at the bottom
+  textSize(25);
+  const textChunks = []
+  for (const chunk of game.charsQueue.queue) {
+      const color = chunk.hit ? [0, 200, 0] : [200, 0, 0];
+      textChunks.push([chunk.char, color]);
+  }
+  text(20, height - 20, textChunks);
+  drawMulticolorText(20, height - 20, textChunks);
 }
 
 function keyPressed() {
-  console.log("keyPressed", key, game.currentChar);
-  if (key === game.currentChar) {
-    // keyIndex = key.charCodeAt(0) - "a".charCodeAt(0);
-    game.hitChar();
-  } else {
-    game.missChar();
+  game.pushChar(key);
+}
+
+// Draw text with different colors
+function drawMulticolorText(x, y, textChunks) {
+  var posx = x;
+  for (let i = 0; i < textChunks.length; ++ i) {
+      const chunk = textChunks[i];
+      const t = chunk[0];
+      const color = chunk[1];
+      const w = textWidth(t);
+      fill(color);
+      text(t, posx, y);
+      posx += w;
   }
 }
