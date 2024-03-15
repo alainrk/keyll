@@ -8,7 +8,7 @@ const CHARSET_SPECIAL = `!@#$%^&*()_+~-=\`{}[]|:;'"<>,.?/\\`;
 
 // CharsQueue just stores a fixed amount of typed characters
 class CharsQueue {
-  constructor(maxLength = 70) {
+  constructor(maxLength = 45) {
     this.queue = [];
     this.maxLength = maxLength;
   }
@@ -110,6 +110,8 @@ function setup() {
   canvas.parent("canvas-game");
   noStroke();
   background(0);
+  // A mono is better
+  textFont('Courier New');
   // Reduce framerate
   frameRate(10);
   rectWidth = width / 4;
@@ -135,7 +137,9 @@ function draw() {
   textSize(100);
 
   // Write the letter in the middle of the rect
-  text(game.currentChar, width / 2, height / 2);
+  textStyle(BOLD);
+  text(game.currentChar, width / 2 - textWidth(game.currentChar) / 2, height / 2 + textWidth(game.currentChar) / 3);
+  textStyle(NORMAL);
 
   // Write the charsQueue at the bottom
   textSize(25);
