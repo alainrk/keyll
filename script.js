@@ -1,7 +1,8 @@
 let rectWidth;
 let game;
 
-const CHARSET_LOWERCASE = `abcdefghijklmnopqrstuvwxyz`;
+const CHARSET_LOWERCASE = `abc`;
+// const CHARSET_LOWERCASE = `abcdefghijklmnopqrstuvwxyz`;
 const CHARSET_UPPERCASE = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
 const CHARSET_NUMBERS = `0123456789`;
 const CHARSET_SPECIAL = `!@#$%^&*()_+~-=\`{}[]|:;'"<>,.?/\\`;
@@ -78,24 +79,28 @@ class Game {
     this.expire = Date.now() + this.timeout * 1000;
   }
 
-  addTypedChar(char) {
-    // TODO: Should we include the non-allowed chars for the session in the skip/print?
-    if (!this.charset.has(char)) {
-      return;
-    }
+  handleTypedChar(char) {
     if (key === game.currentChar) {
       this.score++;
       this.missedChar = false;
       this.updateChar();
       this.resetTimeout();
       this.typedCharsQueue.addChar(char, true);
+      this.promptedCharsQueue.updateCurrent(true);
       return
     }
 
     this.missedChar = true;
+    this.promptedCharsQueue.updateCurrent(false);
+
+    // TODO: Maybe just limiting this to the entire possible charset?
+    // Skip printing chars not in the charset
+    if (!this.charset.has(char)) {
+      return;
+    }
+
     this.typedCharsQueue.addChar(char, false);
   }
-
 
   createAvailableChars() {
     let availableChars = "";
@@ -122,14 +127,14 @@ class Game {
 // Draw text with different colors
 function drawMulticolorText(x, y, textChunks) {
   var posx = x;
-  for (let i = 0; i < textChunks.length; ++ i) {
-      const chunk = textChunks[i];
-      const t = chunk[0];
-      const color = chunk[1];
-      const w = textWidth(t);
-      fill(color);
-      text(t, posx, y);
-      posx += w;
+  for (let i = 0; i < textChunks.length; ++i) {
+    const chunk = textChunks[i];
+    const t = chunk[0];
+    const color = chunk[1];
+    const w = textWidth(t);
+    fill(color);
+    text(t, posx, y);
+    posx += w;
   }
 }
 
@@ -153,6 +158,8 @@ function setup() {
 }
 
 function draw() {
+  let textChunks = []
+
   // Clear the screen
   background(0);
 
@@ -161,32 +168,42 @@ function draw() {
   textSize(32);
   text("Score: " + game.score, 20, 40);
 
+  // Write the prompted chars at the middle right
+  textSize(50);
+  textChunks = []
+  for (const chunk of game.promptedCharsQueue.queue) {
+    // Skip the current
+    if (chunk.current) {
+      continue;
+    }
+    const color = chunk.hit ? [0, 200, 0, 100] : [200, 0, 0, 100];
+    textChunks.push([chunk.char, color]);
+  }
+  drawMulticolorText(20, height / 2 + 20, textChunks);
+
   // Write a random letter to the screen
   if (game.missedChar) {
     fill(255, 0, 0);
   } else {
-    fill(50, 50, 255);
+    fill(255, 255, 255);
   }
 
   textSize(100);
-
-  // Write the letter in the middle of the rect
   textStyle(BOLD);
   text(game.currentChar, width / 2 - textWidth(game.currentChar) / 2, height / 2 + textWidth(game.currentChar) / 3);
   textStyle(NORMAL);
 
   // Write the typedCharsQueue at the bottom
   textSize(25);
-  const textChunks = []
+  textChunks = []
   for (const chunk of game.typedCharsQueue.queue) {
-      const color = chunk.hit ? [0, 200, 0] : [200, 0, 0];
-      textChunks.push([chunk.char, color]);
+    const color = chunk.hit ? [0, 200, 0] : [200, 0, 0];
+    textChunks.push([chunk.char, color]);
   }
   text(20, height - 20, textChunks);
   drawMulticolorText(20, height - 20, textChunks);
 }
 
 function keyPressed() {
-  game.addTypedChar(key);
+  game.handleTypedChar(key);
 }
-
