@@ -22,7 +22,9 @@ class CharsQueue {
     }
   }
 
-  addChar(char, hit) {
+  addChar(char, hit, upcoming = false) {
+    let popped
+
     if (this.queue.length > 0) {
       this.queue[this.queue.length - 1].current = false;
     }
@@ -30,14 +32,15 @@ class CharsQueue {
     this.queue.push({
       char,
       hit,
+      upcoming,
       current: true
     });
 
     if (this.queue.length > this.maxLength) {
-      this.queue.shift();
+      popped = this.queue.shift();
     }
 
-    console.log(this.queue.length, this.queue);
+    return popped
   }
 
   getString() {
@@ -64,7 +67,12 @@ class Game {
     this.charset = new Set(this.availableChars.split(''));
     this.typedCharsQueue = new CharsQueue(45);
     this.promptedCharsQueue = new CharsQueue(11);
+    this.upcomingCharsQueue = new CharsQueue(10);
 
+    // Preallocate upcoming chars
+    for (let i = 0; i < 10; i++) {
+      this.upcomingCharsQueue.addChar(this.getRandomCharFromCharSet(), false, true);
+    }
     this.updateChar();
     this.resetTimeout();
   }
@@ -74,7 +82,9 @@ class Game {
   }
 
   updateChar() {
-    this.promptedCharsQueue.addChar(this.getRandomCharFromCharSet(), true);
+    const popped = this.upcomingCharsQueue.addChar(this.getRandomCharFromCharSet(), false, true);
+    // this.promptedCharsQueue.addChar(this.getRandomCharFromCharSet(), true);
+    this.promptedCharsQueue.addChar(popped.char, true);
   }
 
   resetTimeout() {
@@ -147,6 +157,9 @@ function drawMulticolorText(x, y, textChunks, align = LEFT) {
   }
 }
 
+function startGame() {
+  game = new Game();
+}
 
 /*******************************************
  * P5 functions
@@ -177,6 +190,7 @@ function draw() {
   textSize(32);
   text("Score: " + game.score, 20, 40);
 
+  // Write the already typed chars
   textSize(50);
   textChunks = []
   for (const chunk of game.promptedCharsQueue.queue) {
@@ -187,9 +201,9 @@ function draw() {
     const color = chunk.hit ? [0, 200, 0, 100] : [200, 0, 0, 100];
     textChunks.push([chunk.char, color]);
   }
-  drawMulticolorText(width / 2 - 80, height / 2 + 20, textChunks, RIGHT);
+  drawMulticolorText(width / 2 - 65, height / 2 + 20, textChunks, RIGHT);
 
-  // Write a random letter to the screen
+  // Write the current char in the middle
   if (game.missedChar) {
     fill(255, 0, 0);
   } else {
@@ -200,6 +214,15 @@ function draw() {
   textStyle(BOLD);
   text(game.currentChar, width / 2 - textWidth(game.currentChar) / 2, height / 2 + textWidth(game.currentChar) / 3);
   textStyle(NORMAL);
+
+  // Write the upcoming chars
+  textSize(50);
+  textChunks = []
+  for (const chunk of game.upcomingCharsQueue.queue) {
+    const color = chunk.hit ? [250, 250, 250, 100] : [250, 250, 250, 100];
+    textChunks.push([chunk.char, color]);
+  }
+  drawMulticolorText(width / 2 + 35, height / 2 + 20, textChunks);
 
   // Write the typedCharsQueue at the bottom
   textSize(25);
