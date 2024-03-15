@@ -1,11 +1,13 @@
 let rectWidth;
 let game;
 
-const CHARSET_LOWERCASE = `abc`;
-// const CHARSET_LOWERCASE = `abcdefghijklmnopqrstuvwxyz`;
+// const CHARSET_LOWERCASE = `abc`;
+const CHARSET_LOWERCASE = `abcdefghijklmnopqrstuvwxyz`;
 const CHARSET_UPPERCASE = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
 const CHARSET_NUMBERS = `0123456789`;
 const CHARSET_SPECIAL = `!@#$%^&*()_+~-=\`{}[]|:;'"<>,.?/\\`;
+
+const CHARSET = new Set(`${CHARSET_LOWERCASE}${CHARSET_UPPERCASE}${CHARSET_NUMBERS}${CHARSET_SPECIAL}`.split(''));
 
 // CharsQueue just stores a fixed amount of typed characters
 class CharsQueue {
@@ -61,7 +63,7 @@ class Game {
     this.availableChars = this.createAvailableChars();
     this.charset = new Set(this.availableChars.split(''));
     this.typedCharsQueue = new CharsQueue(45);
-    this.promptedCharsQueue = new CharsQueue(10);
+    this.promptedCharsQueue = new CharsQueue(11);
 
     this.updateChar();
     this.resetTimeout();
@@ -72,7 +74,7 @@ class Game {
   }
 
   updateChar() {
-    this.promptedCharsQueue.addChar(this.getRandomCharFromCharSet(), false);
+    this.promptedCharsQueue.addChar(this.getRandomCharFromCharSet(), true);
   }
 
   resetTimeout() {
@@ -95,7 +97,7 @@ class Game {
 
     // TODO: Maybe just limiting this to the entire possible charset?
     // Skip printing chars not in the charset
-    if (!this.charset.has(char)) {
+    if (!CHARSET.has(char)) {
       return;
     }
 
@@ -124,8 +126,11 @@ class Game {
   }
 }
 
-// Draw text with different colors
-function drawMulticolorText(x, y, textChunks) {
+// Draw text with different width / 2lors
+function drawMulticolorText(x, y, textChunks, align = LEFT) {
+  if (align === RIGHT) {
+    textChunks = textChunks.slice().reverse();
+  }
   var posx = x;
   for (let i = 0; i < textChunks.length; ++i) {
     const chunk = textChunks[i];
@@ -134,7 +139,11 @@ function drawMulticolorText(x, y, textChunks) {
     const w = textWidth(t);
     fill(color);
     text(t, posx, y);
-    posx += w;
+    if (align === LEFT) {
+      posx += w;
+    } else {
+      posx -= w;
+    }
   }
 }
 
@@ -168,7 +177,6 @@ function draw() {
   textSize(32);
   text("Score: " + game.score, 20, 40);
 
-  // Write the prompted chars at the middle right
   textSize(50);
   textChunks = []
   for (const chunk of game.promptedCharsQueue.queue) {
@@ -179,7 +187,7 @@ function draw() {
     const color = chunk.hit ? [0, 200, 0, 100] : [200, 0, 0, 100];
     textChunks.push([chunk.char, color]);
   }
-  drawMulticolorText(20, height / 2 + 20, textChunks);
+  drawMulticolorText(width / 2 - 80, height / 2 + 20, textChunks, RIGHT);
 
   // Write a random letter to the screen
   if (game.missedChar) {
