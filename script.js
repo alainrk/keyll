@@ -72,7 +72,7 @@ class Game {
 function setup() {
   createCanvas(720, 400);
   noStroke();
-  background(230);
+  background(0);
   // Reduce framerate
   frameRate(10);
   rectWidth = width / 4;
@@ -81,16 +81,22 @@ function setup() {
 
 function draw() {
   // Clear the screen
-  background(230);
+  background(0);
+
+  // Write the score at the top left
+  fill(255);
+  textSize(32);
+  text("Score: " + game.score, 20, 40);
 
   // Write a random letter to the screen
   if (game.missedChar) {
     fill(255, 0, 0);
   } else {
-    fill(0, 0, 255);
+    fill(150, 50, 255);
   }
 
-  textSize(20);
+  textSize(100);
+
   // Write the letter in the middle of the rect
   text(game.currentChar, width / 2, height / 2);
 }
