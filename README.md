@@ -3,7 +3,7 @@
 Simple touch typing trainer written in [p5](https://p5js.org/).
 
 <p align="center">
-  <img src='assets/demo.gif' width='400'>
+  <img src='assets/demo.gif' width='600'>
 </p>
 
 ## Dev
