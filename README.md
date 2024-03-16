@@ -2,6 +2,8 @@
 
 Simple touch typing trainer written in [p5](https://p5js.org/).
 
+Still a work in progress, but if you like it [try it out](https://alainrk.github.io/keyll/) or [contribute](https://github.com/alainrk/keyll/pulls).
+
 <p align="center">
   <img src='assets/demo.gif' width='600'>
 </p>
