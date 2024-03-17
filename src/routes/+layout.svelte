@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+	import GithubLogo from 'virtual:icons/logos/github-icon';
+	import LogosArgoIcon from '~icons/logos/argo-icon';
 	import Header from './Header.svelte';
 	import './styles.css';
 </script>
@@ -11,7 +13,10 @@
 	</main>
 
 	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
+		<p>
+			<GithubLogo />
+			<a href="https://github.com/alainrk/keyll">alainrk/keyll</a>
+		</p>
 	</footer>
 </div>
 
