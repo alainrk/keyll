@@ -1,6 +1,4 @@
 <script lang="ts">
-	import GithubLogo from 'virtual:icons/logos/github-icon';
-	import LogosArgoIcon from '~icons/logos/argo-icon';
 	import Header from './Header.svelte';
 	import './styles.css';
 </script>
@@ -12,12 +10,7 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>
-			<GithubLogo />
-			<a href="https://github.com/alainrk/keyll">alainrk/keyll</a>
-		</p>
-	</footer>
+	<footer></footer>
 </div>
 
 <style>
