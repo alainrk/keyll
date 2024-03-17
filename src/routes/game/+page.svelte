@@ -1,7 +1,8 @@
 <script lang="ts">
-	import P5, { type Sketch, type p5 } from 'p5-svelte';
+	import P5, { type Sketch } from 'p5-svelte';
 
 	let game: Game;
+	let gameCanvasParent: HTMLDivElement;
 
 	const CHARSET_LOWERCASE = `abcdefghijklmnopqrstuvwxyz`;
 	const CHARSET_UPPERCASE = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
@@ -161,20 +162,21 @@
 
 	const sketch: Sketch = (p5) => {
 		p5.setup = () => {
-			// p5.createCanvas(p5.windowWidth, p5.windowHeight);
-			p5.createCanvas(720, 400);
+			const canvas = p5.createCanvas(gameCanvasParent.clientWidth, p5.windowHeight / 2);
+			console.log(
+				`Created canvas with size: ${canvas.width}x${canvas.height} in element ${gameCanvasParent.id}.`
+			);
+
 			p5.noStroke();
 			p5.background(0);
-			// A mono is better
 			p5.textFont('Courier New');
 			// Reduce framerate
 			p5.frameRate(10);
-			// rectWidth = width / 4;
 			game = new Game();
 		};
 
 		p5.draw = () => {
-			let textChunks = [] as Array<TextChunk>;
+			let textChunks: Array<TextChunk> = [];
 
 			const drawMulticolorText = (
 				x: number,
@@ -263,4 +265,7 @@
 	};
 </script>
 
-<P5 {sketch} />
+<div id="game-canvas-parent" bind:this={gameCanvasParent}>
+	Hello world
+	<P5 {sketch} />
+</div>

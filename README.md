@@ -33,9 +33,7 @@ npm run preview
 - [x] Add some UI element for hit/missed chars.
 - [x] Improve basic UI, center window, etc.
 - [x] Implement basic score system.
-
 - [ ] [In progress] Wrapping in SvelteKit to learn it.
-
 - [ ] Add settings in UI and inject in game constructor.
 - [ ] Better structure code and bundle it.
 - [ ] Deploy on GitHub Pages.
