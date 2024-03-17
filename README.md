@@ -27,3 +27,18 @@ Tips:
 - [ ] Deploy on GitHub Pages.
 - [ ] Implement timer.
 - [ ] Implement stats system.
+
+######################
+
+```bash
+# Install dependencies
+npm i
+# Start the server
+npm run dev
+# Or start and open the app in a new browser tab
+npm run dev -- --open
+# Build for production
+npm run build
+# Preview the production build
+npm run preview
+```
