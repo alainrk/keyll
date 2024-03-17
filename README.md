@@ -10,11 +10,22 @@ Still a work in progress, but if you like it [try it out](https://alainrk.github
 
 ## Dev
 
-Other than the p5 library, no other dependencies are required.
+```bash
+# Install dependencies
+npm i
 
-Tips:
+# Start the server
+npm run dev
 
-- On VSCode, install the `Live Server` extension and open the `index.html` file with it (`[ctrl|cmd]+shift+p` -> `Open with Live Server`).
+# Or start and open the app in a new browser tab
+npm run dev -- --open
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
+```
 
 ## TODO
 
@@ -27,18 +38,3 @@ Tips:
 - [ ] Deploy on GitHub Pages.
 - [ ] Implement timer.
 - [ ] Implement stats system.
-
-######################
-
-```bash
-# Install dependencies
-npm i
-# Start the server
-npm run dev
-# Or start and open the app in a new browser tab
-npm run dev -- --open
-# Build for production
-npm run build
-# Preview the production build
-npm run preview
-```
