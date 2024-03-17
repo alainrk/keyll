@@ -13,10 +13,10 @@
 			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
 		</svg>
 		<ul>
-			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
+			<li aria-current={$page.url.pathname === `${base}/` ? 'page' : undefined}>
 				<a href="{base}/">Keyll</a>
 			</li>
-			<li aria-current={$page.url.pathname.indexOf('/about') >= 0 ? 'page' : undefined}>
+			<li aria-current={$page.url.pathname === `${base}/about` ? 'page' : undefined}>
 				<a href="{base}/about">About</a>
 			</li>
 		</ul>
