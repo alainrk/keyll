@@ -1,6 +1,8 @@
 <script>
 	import { page } from '$app/stores';
 	import GithubLogo from 'virtual:icons/logos/github-icon';
+	// Needed for deploying to github pages being able to land on the correct path directlys
+	import { base } from '$app/paths';
 </script>
 
 <header>
@@ -12,13 +14,10 @@
 		</svg>
 		<ul>
 			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-				<a href="/">Keyll</a>
+				<a href="{base}/">Keyll</a>
 			</li>
-			<!-- <li aria-current={$page.url.pathname.startsWith('/sverdle') ? 'page' : undefined}>
-				<a href="/sverdle">Sverdle</a>
-			</li> -->
-			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
-				<a href="/about">About</a>
+			<li aria-current={$page.url.pathname.indexOf('/about') >= 0 ? 'page' : undefined}>
+				<a href="{base}/about">About</a>
 			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">

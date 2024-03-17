@@ -1,0 +1,2 @@
+This file tells github pages to don't use Jekyll to build the site.
+See: https://www.okupter.com/blog/deploy-sveltekit-website-to-github-pages
