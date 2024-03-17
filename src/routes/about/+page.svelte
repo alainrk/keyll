@@ -1,26 +1,35 @@
+<script>
+	import demoGif from '$lib/images/demo.gif';
+</script>
+
 <svelte:head>
 	<title>About</title>
 	<meta name="description" content="About this app" />
 </svelte:head>
 
 <div class="text-column">
-	<h1>About this app</h1>
+	<h1>About Keyll</h1>
 
 	<p>
-		This is a <a href="https://kit.svelte.dev">SvelteKit</a> app. You can make your own by typing the
-		following into your command line and following the prompts:
+		Simple touch typing trainer developed using <a href="https://p5js.org/">p5</a>.
 	</p>
 
-	<pre>npm create svelte@latest</pre>
+	<img alt="Game demo GIF" src={demoGif} />
 
-	<p>
-		The page you're looking at is purely static HTML, with no client-side interactivity needed.
-		Because of that, we don't need to load any JavaScript. Try viewing the page's source, or opening
-		the devtools network panel and reloading.
-	</p>
+	<pre class="command-line">
+# Install dependencies
+npm i
 
-	<p>
-		The <a href="/sverdle">Sverdle</a> page illustrates SvelteKit's data loading and form handling. Try
-		using it with JavaScript disabled!
-	</p>
+# Start the server
+npm run dev
+
+# Or start and open the app in a new browser tab
+npm run dev -- --open
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
+	</pre>
 </div>
