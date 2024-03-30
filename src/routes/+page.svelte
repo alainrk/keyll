@@ -272,7 +272,12 @@
 			// Write the hitCount at the top left
 			p5.fill(255);
 			p5.textSize(25);
-			p5.text(`Score: ${game.hitCount}/${game.totCount}`, 20, 40);
+			let score = game.hitCount / (game.totCount - 1); // Exclude current char
+			let scoreTxt = `Score: ${game.hitCount}/${game.totCount - 1}`;
+			if (game.totCount > 1) {
+				scoreTxt += ` (${((score) * 100).toFixed(0)}%)`;
+			}
+			p5.text(scoreTxt, 20, 40);
 
 			// Write the already typed chars
 			p5.textSize(50);
