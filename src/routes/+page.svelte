@@ -1,5 +1,6 @@
 <script lang="ts">
 	import P5, { type Sketch } from 'p5-svelte';
+	import textString from '../../assets/text.txt?raw';
 
 	let game: Game;
 	let gameCanvasParent: HTMLDivElement;
@@ -22,6 +23,8 @@
 
 	type P5Color = [number, number, number, number?];
 	type TextChunk = [string, P5Color];
+
+	type GameTextSourceMode = 'random' | 'text';
 
 	// CharsQueue just stores a fixed amount of typed characters
 	class CharsQueue {
@@ -69,6 +72,44 @@
 		}
 	}
 
+	class TextQueue {
+		currentIndex: number;
+		text: string;
+
+		constructor(text: string) {
+			this.text = text;
+			this.currentIndex = Math.floor(Math.random() * this.text.length);
+			console.log("Before:", this.currentIndex)
+
+
+			// Move to the first word
+			while (true) {
+				// We are already at the beginning of the text
+				if (this.currentIndex === 0) {
+					break;
+				}
+				// We are right after a space so it's fine
+				if (this.currentIndex > 0 && this.text[this.currentIndex - 1] === ' ' && this.text[this.currentIndex] !== ' ') {
+					break;
+				}
+				this.increaseIndex();
+			}
+
+			console.log("After:", this.currentIndex)
+		}
+
+		get current() {
+			return this.text[this.currentIndex];
+		}
+
+		increaseIndex() {
+			this.currentIndex++;
+			if (this.currentIndex >= this.text.length) {
+				this.currentIndex = 0;
+			}
+		}
+	}
+
 	class Game {
 		hitCount: number = 0;
 		totCount: number = 0;
@@ -79,23 +120,35 @@
 		enableSpecial: boolean = false;
 		availableChars: string;
 		charset: Set<string>;
+		mode: GameTextSourceMode = 'text';
 		typedCharsQueue: CharsQueue;
 		promptedCharsQueue: CharsQueue;
 		upcomingCharsQueue: CharsQueue;
+		textQueue: TextQueue;
 
-		constructor() {
-			// TODO: Add a proper options object param
-			this.availableChars = this.createAvailableChars();
-			this.charset = new Set(this.availableChars.split(''));
-			this.typedCharsQueue = new CharsQueue(45);
-			this.promptedCharsQueue = new CharsQueue(11);
-			this.upcomingCharsQueue = new CharsQueue(10);
+	constructor() {
+		this.textQueue = new TextQueue(textString || 'test ');
 
-			// Preallocate upcoming chars
-			for (let i = 0; i < 10; i++) {
+		// TODO: Add a proper options object param
+		this.availableChars = this.createAvailableChars();
+		this.charset = new Set(this.availableChars.split(''));
+
+		// In-game buffers/queues
+		this.typedCharsQueue = new CharsQueue(45);
+		this.promptedCharsQueue = new CharsQueue(11);
+		this.upcomingCharsQueue = new CharsQueue(10);
+
+		// Preallocate upcoming chars
+		for (let i = 0; i < 10; i++) {
+			if (this.mode === 'random') {
 				this.upcomingCharsQueue.addChar(this.getRandomCharFromCharSet(), false, true);
+			} else if (this.mode === 'text') {
+				this.upcomingCharsQueue.addChar(this.textQueue.current, false, true);
+				this.textQueue.increaseIndex();
 			}
-			this.updateChar();
+		}
+
+		this.updateChar();
 		}
 
 		get currentChar() {
@@ -107,7 +160,17 @@
 		}
 
 		updateChar() {
-			const popped = this.upcomingCharsQueue.addChar(this.getRandomCharFromCharSet(), false, true);
+			let popped;
+
+			if (this.mode === 'random') {
+				popped = this.upcomingCharsQueue.addChar(this.getRandomCharFromCharSet(), false, true);
+			} else if (this.mode === 'text') {
+				this.textQueue.increaseIndex();
+				popped = this.upcomingCharsQueue.addChar(this.textQueue.current, false, true);
+			} else {
+				throw new Error(`Invalid mode: ${this.mode}`);
+			}
+
 			if (popped) {
 				this.promptedCharsQueue.addChar(popped.char, true);
 				this.totCount++;
@@ -261,6 +324,8 @@
 
 		p5.keyPressed = () => {
 			game.handleTypedChar(p5.key);
+			// Prevent default behavior
+			return false;
 		};
 	};
 </script>
@@ -270,6 +335,29 @@
 	<meta name="description" content="Keyll Touch Typing Trainer" />
 </svelte:head>
 
-<div id="game-canvas-parent" bind:this={gameCanvasParent}>
-	<P5 {sketch} />
+<div>
+	<div id="game-canvas-parent" bind:this={gameCanvasParent}>
+		<P5 {sketch} />
+	</div>
+	<button on:click={() => game = new Game()}>Reset</button>
 </div>
+
+<style>
+	button {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		background-color: #f44336;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		padding: 10px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 2px;
+		cursor: pointer;
+	}
+</style>
+
