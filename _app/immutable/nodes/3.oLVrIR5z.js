@@ -1,4 +1,4 @@
-import{s as u,e as l,a as h,l as f,c as d,f as o,g as v,m as _,o as r,h as b,i as m,n as i}from"../chunks/scheduler.CyYm8BkD.js";import{S as g,i as w}from"../chunks/index.CziIskVE.js";const x=""+new URL("../assets/demo.z8PGC1Ob.gif",import.meta.url).href;function y(c){let e,s,t,p=`<h1>About Keyll</h1> <p>Simple touch typing trainer developed using <a href="https://p5js.org/">p5</a>.</p> <img alt="Game demo GIF" src="${x}"/> <pre class="command-line"># Install dependencies
+import{s as u,e as l,a as h,l as f,c as d,f as o,g as v,m as _,o as r,h as b,i as m,n as i}from"../chunks/scheduler.BF67GVOu.js";import{S as g,i as w}from"../chunks/index.W2DZ1f3E.js";const x=""+new URL("../assets/demo.z8PGC1Ob.gif",import.meta.url).href;function y(c){let e,s,t,p=`<h1>About Keyll</h1> <p>Simple touch typing trainer developed using <a href="https://p5js.org/">p5</a>.</p> <img alt="Game demo GIF" src="${x}"/> <pre class="command-line"># Install dependencies
 npm i
 
 # Start the server
